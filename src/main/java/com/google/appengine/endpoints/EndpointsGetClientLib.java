@@ -134,12 +134,19 @@ public class EndpointsGetClientLib extends EndpointsMojo {
       try {
         JarEntry je = enu.nextElement();
         File fl = new File(destdir, je.getName());
+        if (!fl.toPath().normalize().startsWith(destdir.toPath().normalize())) {
+          throw new IOException("Bad zip entry");
+        }
         if (fl.getName().equals("pom.xml")) {
           pomFile = fl;
         }
         if (!fl.exists()) {
           fl.getParentFile().mkdirs();
-          fl = new java.io.File(destdir, je.getName());
+          final File zipEntryFile = new java.io.File(destdir, je.getName());
+          if (!zipEntryFile.toPath().normalize().startsWith(destdir.toPath().normalize())) {
+            throw new IOException("Bad zip entry");
+          }
+          fl = zipEntryFile;
         }
         if (je.isDirectory()) {
           continue;
